@@ -3,6 +3,7 @@ package com.jean.portfood.infrastructure.repository;
 import com.jean.portfood.domain.entity.Restaurante;
 import com.jean.portfood.domain.repository.RestauranteRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -25,10 +26,11 @@ public class RestauranteRepositoryImpl implements RestauranteRepository {
     }
 
     @Override
+    @Transactional
     public Restaurante salvar(Restaurante restaurante) {
         return manager.merge(restaurante);
     }
-
+    @Transactional
     @Override
     public void remover(Restaurante restaurante) {
         restaurante = buscar(restaurante.getId());
