@@ -1,11 +1,16 @@
 package com.jean.portfood.domain.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jean.portfood.domain.entity.Restaurante;
 import com.jean.portfood.domain.exception.EntidadeNaoEncontradaException;
 import com.jean.portfood.domain.repository.CozinhaRepository;
 import com.jean.portfood.domain.repository.RestauranteRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ReflectionUtils;
+
+import java.lang.reflect.Field;
+import java.util.Map;
 
 @Service
 public class CadastroRestauranteService {
@@ -50,5 +55,30 @@ public class CadastroRestauranteService {
         BeanUtils.copyProperties(restaurante, restauranteAtual, "id", "dataCadastro", "dataAtualizacao", "cozinha");
         restauranteAtual.setCozinha(cozinha);
         return restauranteRepository.salvar(restauranteAtual);
+    }
+
+    public Restaurante atualizarParcial(Map<String, Object> campos, Long restauranteId){
+
+        var restaurante = restauranteRepository.buscar(restauranteId);
+        if (restaurante == null) {
+            throw new EntidadeNaoEncontradaException(String.format("Restaurante com codigo %d não encontrado", restauranteId));
+        }
+
+        merge(campos, restaurante);
+
+        return atualizar(restaurante, restauranteId);
+    }
+
+    private static void merge(Map<String, Object> campos, Restaurante restauranteDestino) {
+
+        var mapper = new ObjectMapper();
+        var restauranteOrigem = mapper.convertValue(campos, Restaurante.class);
+
+        campos.forEach((nomeProp, valorProp) -> {
+            var field = ReflectionUtils.findField(Restaurante.class, nomeProp);
+            field.setAccessible(true);
+            var novoValor = ReflectionUtils.getField(field, restauranteOrigem);
+            ReflectionUtils.setField(field, restauranteDestino, novoValor);
+        });
     }
 }
