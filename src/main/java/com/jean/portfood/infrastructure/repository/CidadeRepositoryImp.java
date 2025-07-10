@@ -2,6 +2,7 @@ package com.jean.portfood.infrastructure.repository;
 
 import com.jean.portfood.domain.entity.Cidade;
 import com.jean.portfood.domain.repository.CidadeRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,8 +34,11 @@ public class CidadeRepositoryImp implements CidadeRepository {
 
     @Transactional
     @Override
-    public void remover(Cidade cidade) {
-        cidade = buscar(cidade.getId());
+    public void remover(Long cidadeid) {
+        var cidade = buscar(cidadeid);
+        if (cidade == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
         manager.remove(cidade);
     }
 }
