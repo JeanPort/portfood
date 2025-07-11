@@ -20,12 +20,12 @@ public class CadastroEstadoService {
     }
 
     public Estado salvar(Estado estado) {
-        return estadoRepository.salvar(estado);
+        return estadoRepository.save(estado);
     }
 
     public void remover(Long estadoId){
         try {
-            estadoRepository.remover(estadoId);
+            estadoRepository.deleteById(estadoId);
         }catch (EmptyResultDataAccessException e){
             throw new EntidadeNaoEncontradaException(String.format("Estado com codigo %d não encontrado", estadoId));
         }catch (DataIntegrityViolationException e){
@@ -35,13 +35,9 @@ public class CadastroEstadoService {
 
     public Estado atualizar(Estado estado, Long estadoId){
 
-        var estadoAtual = estadoRepository.buscar(estadoId);
-
-        if (estadoAtual == null) {
-            throw new EntidadeNaoEncontradaException(String.format("Estado com codigo %d não encontrado", estadoId));
-        }
+        var estadoAtual = estadoRepository.findById(estadoId).orElseThrow(() -> new EntidadeNaoEncontradaException(String.format("Estado com codigo %d não encontrado", estadoId)));
 
         BeanUtils.copyProperties(estado, estadoAtual, "id");
-        return estadoRepository.salvar(estadoAtual);
+        return estadoRepository.save(estadoAtual);
     }
 }

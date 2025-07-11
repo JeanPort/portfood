@@ -9,7 +9,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
-import java.lang.reflect.Field;
 import java.util.Map;
 
 @Service
@@ -25,44 +24,27 @@ public class CadastroRestauranteService {
 
     public Restaurante salvar(Restaurante restaurante) {
         var cozinhaId = restaurante.getCozinha().getId();
-        var cozinha = cozinhaRepository.buscar(cozinhaId);
+        var cozinha = cozinhaRepository.findById(cozinhaId).orElseThrow(() -> new EntidadeNaoEncontradaException(String.format("Cozinha com codigo %d não encontrada", cozinhaId)));
 
-        if (cozinha == null) {
-            throw new EntidadeNaoEncontradaException(String.format("Cozinha com codigo %d não encontrada", cozinhaId));
-        }
 
         restaurante.setCozinha(cozinha);
-        return restauranteRepository.salvar(restaurante);
+        return restauranteRepository.save(restaurante);
     }
 
     public Restaurante atualizar(Restaurante restaurante, Long restauranteId){
         var cozinhaId = restaurante.getCozinha().getId();
-        var restauranteAtual = restauranteRepository.buscar(restauranteId);
-        var cozinha = cozinhaRepository.buscar(cozinhaId);
 
-        if (restauranteAtual == null){
-            throw new EntidadeNaoEncontradaException(
-                    String.format("O restaurante com o codigo %d não existe", restauranteId)
-            );
-        }
-
-        if (cozinha == null){
-            throw new EntidadeNaoEncontradaException(
-                    String.format("A cozinha com o codigo %d não existe", cozinhaId)
-            );
-        }
+        var restauranteAtual = restauranteRepository.findById(restauranteId).orElseThrow(() -> new EntidadeNaoEncontradaException(String.format("O restaurante com o codigo %d não existe", restauranteId)));
+        var cozinha = cozinhaRepository.findById(cozinhaId).orElseThrow(() -> new EntidadeNaoEncontradaException(String.format("Cozinha com codigo %d não encontrada", cozinhaId)));
 
         BeanUtils.copyProperties(restaurante, restauranteAtual, "id", "dataCadastro", "dataAtualizacao", "cozinha");
         restauranteAtual.setCozinha(cozinha);
-        return restauranteRepository.salvar(restauranteAtual);
+        return restauranteRepository.save(restauranteAtual);
     }
 
     public Restaurante atualizarParcial(Map<String, Object> campos, Long restauranteId){
 
-        var restaurante = restauranteRepository.buscar(restauranteId);
-        if (restaurante == null) {
-            throw new EntidadeNaoEncontradaException(String.format("Restaurante com codigo %d não encontrado", restauranteId));
-        }
+        var restaurante = restauranteRepository.findById(restauranteId).orElseThrow(() -> new EntidadeNaoEncontradaException(String.format("O restaurante com o codigo %d não existe", restauranteId)));
 
         merge(campos, restaurante);
 

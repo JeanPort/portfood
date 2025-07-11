@@ -6,11 +6,9 @@ import com.jean.portfood.domain.exception.EntidadeNaoEncontradaException;
 import com.jean.portfood.domain.repository.CidadeRepository;
 import com.jean.portfood.domain.repository.EstadoRepository;
 import org.springframework.beans.BeanUtils;
-import org.springframework.context.annotation.Bean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @Service
@@ -27,19 +25,15 @@ public class CadastroCidadeService {
     @PostMapping
     public Cidade salvar(Cidade cidade) {
         var estadoId = cidade.getEstado().getId();
-        var estado = estadoRepository.buscar(estadoId);
-
-        if (estado == null) {
-            throw new EntidadeNaoEncontradaException(String.format("Estado com codigo %d não encontrado", estadoId));
-        }
+        var estado = estadoRepository.findById(estadoId).orElseThrow(() -> new EntidadeNaoEncontradaException(String.format("Estado com codigo %d não encontrado", estadoId)));
 
         cidade.setEstado(estado);
-        return cidadeRepository.salvar(cidade);
+        return cidadeRepository.save(cidade);
     }
 
     public void remover(Long cidadeId){
         try {
-            cidadeRepository.remover(cidadeId);
+            cidadeRepository.deleteById(cidadeId);
         }catch (EmptyResultDataAccessException e){
             throw new EntidadeNaoEncontradaException(String.format("Cidade com codigo %d não encontrado", cidadeId));
         }catch (DataIntegrityViolationException e) {
@@ -49,18 +43,12 @@ public class CadastroCidadeService {
 
     public Cidade atualizar(Cidade cidade, Long cidadeId){
         var estadoId = cidade.getEstado().getId();
-        var cidadeAtual = cidadeRepository.buscar(cidadeId);
-        var estado = estadoRepository.buscar(estadoId);
+        var cidadeAtual = cidadeRepository.findById(cidadeId).orElseThrow(() -> new EntidadeNaoEncontradaException(String.format("Cidade com codigo %d não encontrado", cidadeId)));
+        var estado = estadoRepository.findById(estadoId).orElseThrow(() -> new EntidadeNaoEncontradaException(String.format("Estado com codigo %d não encontrado", estadoId)));
 
-        if (cidadeAtual == null) {
-            throw new EntidadeNaoEncontradaException(String.format("Cidade com codigo %d não encontrado", cidadeId));
-        }
-        if (estado == null) {
-            throw new EntidadeNaoEncontradaException(String.format("Estado com codigo %d não encontrado", estadoId));
-        }
 
         BeanUtils.copyProperties(cidade, cidadeAtual, "id", "estado");
         cidadeAtual.setEstado(estado);
-        return cidadeRepository.salvar(cidadeAtual);
+        return cidadeRepository.save(cidadeAtual);
     }
 }

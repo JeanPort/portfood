@@ -25,17 +25,17 @@ public class CidadeController {
 
     @GetMapping
     public ResponseEntity<List<Cidade>> listar() {
-        var cidades = cidadeRepository.listar();
+        var cidades = cidadeRepository.findAll();
         return ResponseEntity.ok(cidades);
     }
 
     @GetMapping("/{cidadeId}")
     public ResponseEntity<Cidade> buscar(@PathVariable Long cidadeId){
-        var cidade = cidadeRepository.buscar(cidadeId);
-        if (cidade == null) {
+        var cidade = cidadeRepository.findById(cidadeId);
+        if (cidade.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(cidade);
+        return ResponseEntity.ok(cidade.get());
     }
 
     @PostMapping

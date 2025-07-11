@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/restaurantes")
@@ -26,17 +25,17 @@ public class RestauranteController {
 
     @GetMapping
     public ResponseEntity<List<Restaurante>> listar(){
-        var restaurantes = restauranteRepository.listar();
+        var restaurantes = restauranteRepository.findAll();
         return ResponseEntity.ok(restaurantes);
     }
 
     @GetMapping("/{restauranteId}")
     public ResponseEntity<Restaurante> buscar(@PathVariable Long restauranteId) {
-        var restaurante = restauranteRepository.buscar(restauranteId);
-        if (restaurante == null) {
+        var restaurante = restauranteRepository.findById(restauranteId);
+        if (restaurante.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(restaurante);
+        return ResponseEntity.ok(restaurante.get());
     }
 
     @PostMapping

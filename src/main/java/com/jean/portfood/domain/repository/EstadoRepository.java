@@ -1,13 +1,9 @@
 package com.jean.portfood.domain.repository;
 
 import com.jean.portfood.domain.entity.Estado;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+public interface EstadoRepository extends JpaRepository<Estado, Long> {
 
-public interface EstadoRepository {
 
-    List<Estado> listar();
-    Estado buscar(Long id);
-    Estado salvar(Estado estado);
-    void remover(Long estadoId);
 }

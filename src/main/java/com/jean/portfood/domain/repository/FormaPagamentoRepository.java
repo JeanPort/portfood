@@ -1,13 +1,11 @@
 package com.jean.portfood.domain.repository;
 
 import com.jean.portfood.domain.entity.FormaPagamento;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface FormaPagamentoRepository {
+public interface FormaPagamentoRepository extends JpaRepository<FormaPagamento, Long> {
 
-    List<FormaPagamento> listar();
-    FormaPagamento buscar(Long id);
-    FormaPagamento salvar(FormaPagamento formaPagamento);
-    void remover(FormaPagamento formaPagamento);
+
 }

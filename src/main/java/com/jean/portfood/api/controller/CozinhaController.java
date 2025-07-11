@@ -26,17 +26,17 @@ public class CozinhaController {
     
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Cozinha>> listar(){
-        var cozinhas = cozinhaRepository.listar();
+        var cozinhas = cozinhaRepository.findAll();
         return ResponseEntity.ok(cozinhas);
     }
 
     @GetMapping("/{cozinhaId}")
     public ResponseEntity<Cozinha> buscar(@PathVariable Long cozinhaId){
-        var cozinha = cozinhaRepository.buscar(cozinhaId);
-        if (cozinha == null) {
+        var cozinha = cozinhaRepository.findById(cozinhaId);
+        if (cozinha.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(cozinha);
+        return ResponseEntity.ok(cozinha.get());
     }
 
     @PostMapping
