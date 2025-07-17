@@ -29,6 +29,7 @@ public class RestauranteController {
         return ResponseEntity.ok(restaurantes);
     }
 
+
     @GetMapping("/{restauranteId}")
     public ResponseEntity<Restaurante> buscar(@PathVariable Long restauranteId) {
         var restaurante = restauranteRepository.findById(restauranteId);
@@ -47,6 +48,7 @@ public class RestauranteController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 
     @PutMapping("/{restauranteId}")
     public ResponseEntity<?> atualizar(@RequestBody Restaurante restaurante, @PathVariable Long restauranteId){
