@@ -1,8 +1,6 @@
 package com.jean.portfood.api.controller;
 
 import com.jean.portfood.domain.entity.Cozinha;
-import com.jean.portfood.domain.exception.EntidadeEmUsoException;
-import com.jean.portfood.domain.exception.EntidadeNaoEncontradaException;
 import com.jean.portfood.domain.repository.CozinhaRepository;
 import com.jean.portfood.domain.service.CadastroCozinhaService;
 import org.springframework.http.HttpStatus;
@@ -32,11 +30,8 @@ public class CozinhaController {
 
     @GetMapping("/{cozinhaId}")
     public ResponseEntity<Cozinha> buscar(@PathVariable Long cozinhaId){
-        var cozinha = cozinhaRepository.findById(cozinhaId);
-        if (cozinha.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(cozinha.get());
+        var cozinha = cadastroCozinha.buscarOuFalhar(cozinhaId);
+        return ResponseEntity.ok(cozinha);
     }
 
     @PostMapping
@@ -47,28 +42,13 @@ public class CozinhaController {
 
     @PutMapping("/{cozinhaId}")
     public ResponseEntity<Cozinha> atualizar(@PathVariable Long cozinhaId, @RequestBody Cozinha cozinha){
-
-        try {
-            cozinha = cadastroCozinha.atualizar(cozinhaId, cozinha);
-            return ResponseEntity.ok(cozinha);
-        }catch (EntidadeNaoEncontradaException e){
-            return ResponseEntity.notFound().build();
-        }
-
-
+        cozinha = cadastroCozinha.atualizar(cozinhaId, cozinha);
+        return ResponseEntity.ok(cozinha);
     }
 
     @DeleteMapping("/{cozinhaId}")
-    public ResponseEntity<?> remover(@PathVariable Long cozinhaId){
-        try {
-            cadastroCozinha.remover(cozinhaId);
-            return ResponseEntity.noContent().build();
-        }catch (EntidadeEmUsoException e){
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-
-        }catch (EntidadeNaoEncontradaException ex){
-            return ResponseEntity.notFound().build();
-        }
-
+    public ResponseEntity<Void> remover(@PathVariable Long cozinhaId){
+        cadastroCozinha.remover(cozinhaId);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class CadastroEstadoService {
 
+    public static final String MSG_ESTADO_NAO_ENCONTRADO = "Estado com codigo %d não encontrado";
+    public static final String MSG_ESTADO_EM_USO = "Estado com codigo %d não pode ser removi";
+
     private final EstadoRepository estadoRepository;
 
 
@@ -27,17 +30,21 @@ public class CadastroEstadoService {
         try {
             estadoRepository.deleteById(estadoId);
         }catch (EmptyResultDataAccessException e){
-            throw new EntidadeNaoEncontradaException(String.format("Estado com codigo %d não encontrado", estadoId));
+            throw new EntidadeNaoEncontradaException(String.format(MSG_ESTADO_NAO_ENCONTRADO, estadoId));
         }catch (DataIntegrityViolationException e){
-            throw new EntidadeEmUsoException(String.format("Estado com codigo %d não pode ser removi", estadoId));
+            throw new EntidadeEmUsoException(String.format(MSG_ESTADO_EM_USO, estadoId));
         }
     }
 
     public Estado atualizar(Estado estado, Long estadoId){
 
-        var estadoAtual = estadoRepository.findById(estadoId).orElseThrow(() -> new EntidadeNaoEncontradaException(String.format("Estado com codigo %d não encontrado", estadoId)));
+        var estadoAtual = buscarOuFalhar(estadoId);
 
         BeanUtils.copyProperties(estado, estadoAtual, "id");
         return estadoRepository.save(estadoAtual);
+    }
+
+    public Estado buscarOuFalhar(Long estadoId){
+        return estadoRepository.findById(estadoId).orElseThrow(() -> new EntidadeNaoEncontradaException(String.format(MSG_ESTADO_NAO_ENCONTRADO, estadoId)));
     }
 }
